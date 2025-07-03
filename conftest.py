@@ -1,0 +1,234 @@
+from faker import Faker
+import pytest
+import requests
+
+from Cinescope.tests.api.api_manager import ApiManager
+from Cinescope.tests.api.auth_api import AuthAPI
+from constants import BASE_URL, REGISTER_ENDPOINT, USER_CREDS, HEADERS, MOVIES_ENDPOINT
+from custom_requester.custom_requester import CustomRequester
+from utils.data_generator import DataGenerator
+
+
+faker = Faker()
+
+@pytest.fixture(scope="session")
+def test_user():
+    """
+    Генерация случайного пользователя для тестов.
+    """
+    random_email = DataGenerator.generate_random_email()
+    random_name = DataGenerator.generate_random_name()
+    random_password = DataGenerator.generate_random_password()
+
+    return {
+        "email": random_email,
+        "fullName": random_name,
+        "password": random_password,
+        "passwordRepeat": random_password,
+        "roles": ["USER"]
+    }
+
+
+@pytest.fixture(scope="session")
+def registered_user(requester, test_user):
+    """
+    Фикстура для регистрации и получения данных зарегистрированного пользователя.
+    """
+    response = requester.send_request(
+        method="POST",
+        endpoint=REGISTER_ENDPOINT,
+        data=test_user,
+        expected_status=201
+    )
+    response_data = response.json()
+    registered_user = test_user.copy()
+    registered_user["id"] = response_data["id"]
+    return registered_user
+
+
+@pytest.fixture(scope="session")
+def test_movie():
+    """
+    Генерация тестового фильма для тестов.
+    """
+    random_movie_name = DataGenerator.generate_random_movie_name()
+    random_movie_price = DataGenerator.generate_random_movie_price()
+    random_movie_description = DataGenerator.generate_random_movie_description()
+    random_movie_genreId = DataGenerator.generate_random_movie_genreId()
+
+    return {
+        "name": random_movie_name,
+        "imageUrl": "https://example.com/image.png",
+        "price": random_movie_price,
+        "description": random_movie_description,
+        "location": "SPB",
+        "published": True,
+        "genreId": random_movie_genreId
+    }
+
+
+@pytest.fixture(scope="session")
+def test_review():
+    """
+    Генерация тестового отзыва к фильму
+    """
+    random_movie_review_rating = DataGenerator.generate_random_movie_rating()
+    random_movie_review_text = DataGenerator.generate_random_movie_review_text()
+
+    return {
+        "rating": random_movie_review_rating,
+        "text": random_movie_review_text
+    }
+
+
+@pytest.fixture(scope="session")
+def edited_movie(test_movie):
+    """
+    Отредактированный фильм для теста с обновлением (PATCH)
+    """
+    random_movie_name = DataGenerator.generate_random_movie_name() + "_"
+    random_movie_price = DataGenerator.generate_random_movie_price()
+    random_movie_description = DataGenerator.generate_random_movie_description() + "_"
+    random_movie_genreId = DataGenerator.generate_random_movie_genreId()
+
+    test_movie["name"] = random_movie_name
+    test_movie["description"] = random_movie_description
+    test_movie["price"] = random_movie_price
+    test_movie["genreId"] = random_movie_genreId
+
+    return test_movie
+
+
+@pytest.fixture(scope="session")
+def edited_review(created_review, test_review):
+    """
+    Отредактированный отзыв для теста редактирования отзыва (PUT)
+    """
+    return {
+        "rating": 3,
+        "text": test_review["text"] + "_"
+    }
+
+
+@pytest.fixture(scope="session")
+def created_movie(api_manager, test_movie):
+    """
+    Фикстура для создания фильма и получения его данных
+    """
+    response = api_manager.movies_api.send_request(
+        method="POST",
+        endpoint=MOVIES_ENDPOINT,
+        data=test_movie,
+        expected_status=201
+    )
+
+    created_movie = response.json()
+    return created_movie
+
+
+@pytest.fixture(scope="session")
+def created_review(api_manager, created_movie, test_review):
+    """
+    Фикстура для создания отзыва к фильму
+    """
+    movie_id = created_movie["id"]
+
+    response = api_manager.movies_api.send_request(
+        method="POST",
+        endpoint=f"{MOVIES_ENDPOINT}/{movie_id}/reviews",
+        data=test_review,
+        expected_status=201
+    )
+
+    created_review = response.json()
+    return created_review
+
+
+@pytest.fixture(scope="session")
+def hidden_review(api_manager, created_movie, created_review):
+    """
+    Фикстура для создания скрытого отзыва к фильму
+    """
+    params_review = {
+        "movieId": created_movie["id"],
+        "userId": created_review["userId"]
+    }
+
+    response = api_manager.movies_api.hide_review(params_review)
+    response_data = response.json()
+
+    return response_data
+
+
+@pytest.fixture(scope="session")
+def parameters_movies():
+    """
+    Фикстура с параметрами афиш фильмов.
+    """
+    random_page_size = DataGenerator.generate_random_page_size()
+    random_page = DataGenerator.generate_random_page()
+    random_min_price = DataGenerator.generate_random_min_price()
+    random_max_price = DataGenerator.generate_random_max_price()
+
+    return {
+        "pageSize" : random_page_size,
+        "page" : random_page,
+        "minPrice" : random_min_price,
+        "maxPrice" : random_max_price,
+        "locations" : "MSK,SPB",
+        "published" : True,
+        "createdAt" : "asc"
+    }
+
+
+@pytest.fixture(scope="session")
+def get_movies_created_date(api_manager, parameters_movies):
+    """
+    Фикстура для получения даты создания фильмов.
+    """
+    response = api_manager.movies_api.send_request(
+        method="GET",
+        endpoint=MOVIES_ENDPOINT,
+        data=parameters_movies,
+        expected_status=200
+    )
+
+    response_data = response.json()
+
+    created_date_movies = []
+    movies = response_data["movies"]
+    for date_creation in movies:
+        created_date_movies.append(date_creation["createdAt"])
+
+    return created_date_movies
+
+
+@pytest.fixture(scope="session")
+def requester():
+    """
+    Фикстура для создания экземпляра CustomRequester.
+    """
+    session = requests.Session()
+    return CustomRequester(session=session, base_url=BASE_URL)
+
+
+@pytest.fixture(scope="session")
+def session():
+    """
+    Фикстура для создания HTTP-сессии.
+    """
+    http_session = requests.Session()
+    yield http_session
+    http_session.close()
+
+
+@pytest.fixture(scope="session")
+def api_manager(session):
+    """
+    Фикстура для создания экземпляра ApiManager.
+    """
+    session.headers.update(HEADERS)
+    auth_headers = AuthAPI(session).authenticate(USER_CREDS)
+    session.headers.update(auth_headers)
+
+    return ApiManager(session)
