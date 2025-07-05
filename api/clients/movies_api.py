@@ -66,17 +66,17 @@ class MoviesAPI(CustomRequester):
         )
 
 
-    def edit_movie(self, movie_id, edit_movie, expected_status=200):
+    def edit_movie(self, movie_id, edited_movie, expected_status=200):
         """
         Редактирование фильма по его id.
-        :param edit_movie: Редактируемые данные фильма.
+        :param edited_movie: Редактируемые данные фильма.
         :param movie_id: Id фильма, который будем редактировать.
         :param expected_status: Ожидаемый статус-код.
         """
         return self.send_request(
             method="PATCH",
             endpoint=f"{MOVIES_ENDPOINT}/{movie_id}",
-            data=edit_movie,
+            data=edited_movie,
             expected_status=expected_status
         )
 
@@ -125,51 +125,51 @@ class MoviesAPI(CustomRequester):
         )
 
 
-    def delete_movie_review(self, parameters_review, expected_status=200):
+    def delete_movie_review(self, params_review, expected_status=200):
         """
         Удаление отзыва фильма.
-        :param parameters_review: Параметры в запросе на удаление(movieId, userId)
+        :param params_review: Параметры в запросе на удаление(movieId, userId)
         :param expected_status: Ожидаемый статус-код.
         """
-        movie_id = parameters_review["movieId"]
+        movie_id = params_review["movieId"]
 
         return self.send_request(
             method="DELETE",
             endpoint=f"{MOVIES_ENDPOINT}/{movie_id}/reviews",
-            data=parameters_review,
+            data=params_review,
             expected_status=expected_status
         )
 
 
-    def hide_review(self, parameters_review, expected_status=200):
+    def hide_review(self, params_review, expected_status=200):
         """
         Скрытие отзыва фильма
-        :param parameters_review: Параметры в запросе на скрытие отзыва(movieId, userId)
+        :param params_review: Параметры в запросе на скрытие отзыва(movieId, userId)
         :param expected_status: Ожидаемый статус-код.
         """
-        movie_id = parameters_review["movieId"]
-        user_id = parameters_review["userId"]
+        movie_id = params_review["movieId"]
+        user_id = params_review["userId"]
 
         return self.send_request(
             method="PATCH",
             endpoint=f"{MOVIES_ENDPOINT}/{movie_id}/reviews/hide/{user_id}",
-            data=parameters_review,
+            data=params_review,
             expected_status=expected_status
         )
 
 
-    def show_review(self, parameters_review, expected_status=200):
+    def show_review(self, params_review, expected_status=200):
         """
         Показ отзыва фильма
-        :param parameters_review: Параметры в запросе на показ отзыва(movieId, userId)
+        :param params_review: Параметры в запросе на показ отзыва(movieId, userId)
         :param expected_status: Ожидаемый статус-код.
         """
-        movie_id = parameters_review["movieId"]
-        user_id = parameters_review["userId"]
+        movie_id = params_review["movieId"]
+        user_id = params_review["userId"]
 
         return self.send_request(
             method="PATCH",
             endpoint=f"{MOVIES_ENDPOINT}/{movie_id}/reviews/show/{user_id}",
-            data=parameters_review,
+            data=params_review,
             expected_status=expected_status
         )

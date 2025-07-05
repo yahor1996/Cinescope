@@ -2,8 +2,8 @@ from faker import Faker
 import pytest
 import requests
 
-from Cinescope.tests.api.api_manager import ApiManager
-from Cinescope.tests.api.auth_api import AuthAPI
+from Cinescope.api.clients.api_manager import ApiManager
+from Cinescope.api.clients.auth_api import AuthAPI
 from constants import BASE_URL, REGISTER_ENDPOINT, USER_CREDS, HEADERS, MOVIES_ENDPOINT
 from custom_requester.custom_requester import CustomRequester
 from utils.data_generator import DataGenerator
@@ -46,7 +46,7 @@ def registered_user(requester, test_user):
     return registered_user
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def test_movie():
     """
     Генерация тестового фильма для тестов.
@@ -67,7 +67,7 @@ def test_movie():
     }
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def test_review():
     """
     Генерация тестового отзыва к фильму
@@ -81,7 +81,7 @@ def test_review():
     }
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def edited_movie(test_movie):
     """
     Отредактированный фильм для теста с обновлением (PATCH)
@@ -99,7 +99,7 @@ def edited_movie(test_movie):
     return test_movie
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def edited_review(created_review, test_review):
     """
     Отредактированный отзыв для теста редактирования отзыва (PUT)
@@ -110,7 +110,7 @@ def edited_review(created_review, test_review):
     }
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def created_movie(api_manager, test_movie):
     """
     Фикстура для создания фильма и получения его данных
@@ -123,10 +123,34 @@ def created_movie(api_manager, test_movie):
     )
 
     created_movie = response.json()
-    return created_movie
+    yield created_movie
+
+    # Очистка после теста
+    movie_id = created_movie["id"]
+    api_manager.movies_api.send_request(
+        method="DELETE",
+        endpoint=f"{MOVIES_ENDPOINT}/{movie_id}",
+        expected_status=200
+    )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
+def delete_created_movie(api_manager, test_movie):
+    """
+    Фикстура для создания фильма для метода delete
+    """
+    response = api_manager.movies_api.send_request(
+        method="POST",
+        endpoint=MOVIES_ENDPOINT,
+        data=test_movie,
+        expected_status=201
+    )
+
+    new_movie = response.json()
+    return new_movie
+
+
+@pytest.fixture(scope="function")
 def created_review(api_manager, created_movie, test_review):
     """
     Фикстура для создания отзыва к фильму
@@ -141,10 +165,36 @@ def created_review(api_manager, created_movie, test_review):
     )
 
     created_review = response.json()
-    return created_review
+    yield created_review
+
+    # Очистка после теста
+    api_manager.movies_api.send_request(
+        method="DELETE",
+        endpoint=f"{MOVIES_ENDPOINT}/{movie_id}/reviews",
+        data=created_review,
+        expected_status=200
+    )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
+def delete_created_review(api_manager, created_movie, test_review):
+    """
+    Фикстура для создания отзыва к фильму для метода delete
+    """
+    movie_id = created_movie["id"]
+
+    response = api_manager.movies_api.send_request(
+        method="POST",
+        endpoint=f"{MOVIES_ENDPOINT}/{movie_id}/reviews",
+        data=test_review,
+        expected_status=201
+    )
+
+    new_review = response.json()
+    return new_review
+
+
+@pytest.fixture(scope="function")
 def hidden_review(api_manager, created_movie, created_review):
     """
     Фикстура для создания скрытого отзыва к фильму
@@ -161,7 +211,7 @@ def hidden_review(api_manager, created_movie, created_review):
 
 
 @pytest.fixture(scope="session")
-def parameters_movies():
+def params_movies():
     """
     Фикстура с параметрами афиш фильмов.
     """
@@ -182,14 +232,14 @@ def parameters_movies():
 
 
 @pytest.fixture(scope="session")
-def get_movies_created_date(api_manager, parameters_movies):
+def get_movies_created_date(api_manager, params_movies):
     """
     Фикстура для получения даты создания фильмов.
     """
     response = api_manager.movies_api.send_request(
         method="GET",
         endpoint=MOVIES_ENDPOINT,
-        data=parameters_movies,
+        data=params_movies,
         expected_status=200
     )
 

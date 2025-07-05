@@ -1,4 +1,4 @@
-from Cinescope.tests.api.api_manager import ApiManager
+from Cinescope.api.clients.api_manager import ApiManager
 
 
 class TestMoviesAPI:
@@ -10,7 +10,6 @@ class TestMoviesAPI:
         response_data = response.json()
 
         # Проверки
-        assert response.status_code == 201, "Фильм не создался"
         assert response_data["name"] == test_movie["name"], "Название фильма не совпадает"
         assert response_data["description"] == test_movie["description"], "Описание фильма не совпадает"
 
@@ -24,21 +23,19 @@ class TestMoviesAPI:
         response_data = response.json()
 
         # Проверки
-        assert response.status_code == 200, "Фильм по id не найден"
         assert "id" in response_data, "ID фильма отсутствует в ответе"
         assert "name" in response_data, "Имя фильма отсутствует в ответе"
         assert "description" in response_data, "Описание фильма отсутствует в ответе"
 
 
-    def test_get_movies(self, api_manager: ApiManager, parameters_movies):
+    def test_get_movies(self, api_manager: ApiManager, params_movies):
         """
         Тест на получение афиш фильмов
         """
-        response = api_manager.movies_api.get_movies(parameters_movies)
+        response = api_manager.movies_api.get_movies(params_movies)
         response_data = response.json()
 
         # Проверки
-        assert response.status_code == 200, "Афишы фильмов не найдены"
         assert "movies" in response_data, "Список фильмов отсутствует в ответе"
         assert "page" in response_data, "Атрибут страницы отсутствует в ответе"
 
@@ -50,16 +47,15 @@ class TestMoviesAPI:
         assert get_movies_created_date == sorted(get_movies_created_date), "Даты не отфильтрованы asc"
 
 
-    def test_delete_movie(self, api_manager: ApiManager, created_movie):
+    def test_delete_movie(self, api_manager: ApiManager, delete_created_movie):
         """
         Тест на удаление фильма по id
         """
-        movie_id = created_movie["id"]
+        movie_id = delete_created_movie["id"]
         response = api_manager.movies_api.delete_movie(movie_id)
         response_data = response.json()
 
         # Проверки
-        assert response.status_code == 200, "Фильм не удалился"
         assert "id" in response_data, "ID фильма отсутствует в ответе"
         assert "name" in response_data, "Имя фильма отсутствует в ответе"
         assert "description" in response_data, "Описание фильма отсутствует в ответе"
@@ -80,7 +76,6 @@ class TestMoviesAPI:
         response_data = response.json()
 
         # Проверки
-        assert response.status_code == 200, "Данные фильма не обновились"
         assert response_data["name"] != created_movie["name"], "Название фильма не изменилось"
         assert response_data["location"] == created_movie["location"], "Локация изменилась"
 
@@ -90,13 +85,11 @@ class TestReviewsAPI:
         """
         Тест на создание отзыва к фильму
         """
-
         movie_id = created_movie["id"]
         response = api_manager.movies_api.create_review(movie_id, test_review)
         response_data = response.json()
 
         # Проверки
-        assert response.status_code == 201, "Отзыв не создался"
         assert "rating" in response_data, "Рейтинг фильма отсутствует в ответе"
         assert "text" in response_data, "Отзыв о фильме отсутствует в ответе"
 
@@ -108,9 +101,6 @@ class TestReviewsAPI:
         movie_id = created_movie["id"]
         response = api_manager.movies_api.get_reviews(movie_id)
         response_data = response.json()
-
-        # Проверки
-        assert response.status_code == 200, "Отзыв не получен в ответе"
 
         # Проверяем наличие ключа rating хотя бы в одном из словарей списка response_data
         assert any("rating" in element for element in response_data), "Рейтинг фильма отсутствует в ответе"
@@ -126,27 +116,23 @@ class TestReviewsAPI:
         response_data = response.json()
 
         # Проверки
-        assert response.status_code == 200, "Отзыв не отредактирован"
         assert response_data["text"] != test_review["text"], "Текст отзыва не изменился"
 
 
-    def test_delete_reviews(self, api_manager: ApiManager, created_movie, created_review):
+    def test_delete_reviews(self, api_manager: ApiManager, created_movie, delete_created_review):
         """
         Тест на удаление отзыва к фильму
         """
-        parameters_review = {
+        params_review = {
             "movieId": created_movie["id"],
-            "userId": created_review["userId"]
+            "userId": delete_created_review["userId"]
         }
 
-        response = api_manager.movies_api.delete_movie_review(parameters_review)
+        response = api_manager.movies_api.delete_movie_review(params_review)
         response_data = response.json()
 
-        # Проверки
-        assert response.status_code == 200, "Отзыв не удалён"
-
         # Проверка, что отзыв действительно удалился
-        response = api_manager.movies_api.get_reviews(parameters_review["movieId"])
+        response = api_manager.movies_api.get_reviews(params_review["movieId"])
         response_data = response.json()
         assert response_data == [], "Отзыв не удалён"
 
@@ -155,16 +141,15 @@ class TestReviewsAPI:
         """
         Тест на скрытие отзыва
         """
-        parameters_review = {
+        params_review = {
             "movieId": created_movie["id"],
             "userId": created_review["userId"]
         }
 
-        response = api_manager.movies_api.hide_review(parameters_review)
+        response = api_manager.movies_api.hide_review(params_review)
         response_data = response.json()
 
         # Проверки
-        assert response.status_code == 200, "Отзыв не скрыт"
         assert response_data["hidden"] == True, "Признак скрытия - False"
 
 
@@ -172,17 +157,16 @@ class TestReviewsAPI:
         """
         Тест на показ отзыва
         """
-        parameters_review = {
+        params_review = {
             "movieId": created_movie["id"],
             "userId": hidden_review["userId"]
         }
 
 
-        response = api_manager.movies_api.show_review(parameters_review)
+        response = api_manager.movies_api.show_review(params_review)
         response_data = response.json()
 
         # Проверки
-        assert response.status_code == 200, "Отзыв скрыт"
         assert response_data["hidden"] == False, "Признак скрытия - True"
 
 
@@ -196,7 +180,6 @@ class TestNegativeMoviesAPI:
         response_data = response.json()
 
         # Проверки
-        assert response.status_code == 400, "Фильм создался c name = None"
         assert "error" in response_data, "Отсутствие error Bad Request в ответе"
         assert "message" in response_data, "Сообщение об ошибке отсутствует в ответе"
 
@@ -210,22 +193,20 @@ class TestNegativeMoviesAPI:
         response_data = response.json()
 
         # Проверки
-        assert response.status_code == 500, "Фильм по id = None найден"
         assert "error" in response_data, "Отсутствие error Internal Server Error в ответе"
         assert "message" in response_data, "Сообщение об ошибке отсутствует в ответе"
 
 
-    def test_negative_get_movies(self, api_manager: ApiManager, parameters_movies):
+    def test_negative_get_movies(self, api_manager: ApiManager, params_movies):
         """
         Негативный тест на получение афиш фильмов
         """
-        parameters_movies = str(parameters_movies)
+        params_movies = str(params_movies)
 
-        response = api_manager.movies_api.get_movies(parameters_movies, expected_status=400)
+        response = api_manager.movies_api.get_movies(params_movies, expected_status=400)
         response_data = response.json()
 
         # Проверки
-        assert response.status_code == 400, "Афишы фильмов отображаются"
         assert "error" in response_data, "Отсутствие error Bad Request в ответе"
         assert "message" in response_data, "Сообщение об ошибке отсутствует в ответе"
 
@@ -239,7 +220,6 @@ class TestNegativeMoviesAPI:
         response_data = response.json()
 
         # Проверки
-        assert response.status_code == 404, "Фильм c movie_id = None удалился"
         assert "error" in response_data, "Отсутствие error Not Found в ответе"
         assert "message" in response_data, "Сообщение об ошибке отсутствует в ответе"
 
@@ -254,6 +234,5 @@ class TestNegativeMoviesAPI:
         response_data = response.json()
 
         # Проверки
-        assert response.status_code == 400, "Данные фильма обновились"
         assert "error" in response_data, "Отсутствие error Bad Request в ответе"
         assert "message" in response_data, "Сообщение об ошибке отсутствует в ответе"

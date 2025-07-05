@@ -1,4 +1,4 @@
-from Cinescope.tests.api.api_manager import ApiManager
+from Cinescope.api.clients.api_manager import ApiManager
 
 
 class TestAuthAPI:
