@@ -38,16 +38,16 @@ class MoviesAPI(CustomRequester):
         )
 
 
-    def get_movies(self, parameteres_movies, expected_status=200):
+    def get_movies(self, params_movies, expected_status=200):
         """
         Получение афиш фильмов.
-        :param parameteres_movies: Параметры для получения афиш фильмов.
+        :param params_movies: Параметры для получения афиш фильмов.
         :param expected_status: Ожидаемый статус-код.
         """
         return self.send_request(
             method="GET",
             endpoint=MOVIES_ENDPOINT,
-            data=parameteres_movies,
+            data=params_movies,
             expected_status=expected_status
         )
 
