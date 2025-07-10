@@ -5,13 +5,15 @@ import requests
 from Cinescope.api.clients.api_manager import ApiManager
 from Cinescope.api.clients.auth_api import AuthAPI
 from constants import BASE_URL, REGISTER_ENDPOINT, USER_CREDS, HEADERS, MOVIES_ENDPOINT
+from Cinescope.resources.user_creds import SuperAdminCreds
+from Cinescope.entities.user import User
 from custom_requester.custom_requester import CustomRequester
 from utils.data_generator import DataGenerator
 
 
 faker = Faker()
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def test_user():
     """
     Генерация случайного пользователя для тестов.
@@ -29,7 +31,7 @@ def test_user():
     }
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def registered_user(requester, test_user):
     """
     Фикстура для регистрации и получения данных зарегистрированного пользователя.
@@ -282,3 +284,44 @@ def api_manager(session):
     session.headers.update(auth_headers)
 
     return ApiManager(session)
+
+
+@pytest.fixture
+def user_session():
+    user_pool = []
+
+    def _create_user_session():
+        session = requests.Session()
+        user_session = ApiManager(session)
+        user_pool.append(user_session)
+        return user_session
+
+    yield _create_user_session
+
+    for user in user_pool:
+        user.close_session()
+
+
+@pytest.fixture
+def super_admin(user_session):
+    new_session = user_session()
+
+    super_admin = User(
+        SuperAdminCreds.USERNAME,
+        SuperAdminCreds.PASSWORD,
+        "[SUPER_ADMIN]",
+        new_session
+    )
+
+    super_admin.api.auth_api.authenticate(super_admin.creds)
+    return super_admin
+
+
+@pytest.fixture(scope="function")
+def creation_user_data(test_user):
+    updated_data = test_user.copy()
+    updated_data.update({
+        "verified": True,
+        "banned": False
+    })
+    return updated_data
