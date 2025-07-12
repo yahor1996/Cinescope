@@ -280,8 +280,8 @@ def api_manager(session):
     Фикстура для создания экземпляра ApiManager.
     """
     session.headers.update(HEADERS)
-    auth_headers = AuthAPI(session).authenticate(USER_CREDS)
-    session.headers.update(auth_headers)
+    AuthAPI(session).authenticate(USER_CREDS)
+    #session.headers.update(auth_headers)
 
     return ApiManager(session)
 

@@ -16,7 +16,7 @@ class UserAPI(CustomRequester):
     def create_user(self, user_data, expected_status=201):
         return self.send_request(
             method="POST",
-            endpoint="/user",
+            endpoint="user",
             data=user_data,
             expected_status=expected_status
         )

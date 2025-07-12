@@ -49,9 +49,9 @@ class AuthAPI(CustomRequester):
             raise KeyError("token is missing")
 
         token = response["accessToken"]
-        #self._update_session_headers(**{"authorization": "Bearer " + token})
+        self._update_session_headers(**{"authorization": "Bearer " + token})
         #self._update_session_headers(session=self.session, **{"authorization": "Bearer " + token})
-        return {"Authorization": f"Bearer {token}"}
+        #return {"Authorization": f"Bearer {token}"}
 
 
 
