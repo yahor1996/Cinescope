@@ -4,7 +4,8 @@ import requests
 
 from Cinescope.api.clients.api_manager import ApiManager
 from Cinescope.api.clients.auth_api import AuthAPI
-from constants import BASE_URL, REGISTER_ENDPOINT, USER_CREDS, HEADERS, MOVIES_ENDPOINT
+from Cinescope.constants.constants import BASE_URL, REGISTER_ENDPOINT, USER_CREDS, HEADERS, MOVIES_ENDPOINT
+from Cinescope.constants.roles import Roles
 from Cinescope.resources.user_creds import SuperAdminCreds
 from Cinescope.entities.user import User
 from custom_requester.custom_requester import CustomRequester
@@ -27,7 +28,7 @@ def test_user():
         "fullName": random_name,
         "password": random_password,
         "passwordRepeat": random_password,
-        "roles": ["USER"]
+        "roles": [Roles.USER.value]
     }
 
 
@@ -309,7 +310,7 @@ def super_admin(user_session):
     super_admin = User(
         SuperAdminCreds.USERNAME,
         SuperAdminCreds.PASSWORD,
-        "[SUPER_ADMIN]",
+        [Roles.SUPER_ADMIN.value],
         new_session
     )
 
@@ -325,3 +326,19 @@ def creation_user_data(test_user):
         "banned": False
     })
     return updated_data
+
+
+@pytest.fixture
+def common_user(user_session, super_admin, creation_user_data):
+    new_session = user_session()
+
+    common_user = User(
+        creation_user_data['email'],
+        creation_user_data['password'],
+        [Roles.USER.value],
+        new_session
+    )
+
+    super_admin.api.user_api.create_user(creation_user_data)
+    common_user.api.auth_api.authenticate(common_user.creds)
+    return common_user

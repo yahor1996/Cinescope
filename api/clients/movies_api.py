@@ -1,5 +1,5 @@
 from Cinescope.custom_requester.custom_requester import CustomRequester
-from Cinescope.constants import MOVIES_ENDPOINT
+from Cinescope.constants.constants import MOVIES_ENDPOINT
 
 class MoviesAPI(CustomRequester):
     """
