@@ -114,11 +114,11 @@ def edited_review(created_review, test_review):
 
 
 @pytest.fixture(scope="function")
-def created_movie(api_manager, test_movie):
+def created_movie(super_admin, test_movie):
     """
     Фикстура для создания фильма и получения его данных
     """
-    response = api_manager.movies_api.send_request(
+    response = super_admin.api.movies_api.send_request(
         method="POST",
         endpoint=MOVIES_ENDPOINT,
         data=test_movie,
@@ -130,7 +130,7 @@ def created_movie(api_manager, test_movie):
 
     # Очистка после теста
     movie_id = created_movie["id"]
-    api_manager.movies_api.send_request(
+    super_admin.api.movies_api.send_request(
         method="DELETE",
         endpoint=f"{MOVIES_ENDPOINT}/{movie_id}",
         expected_status=200
@@ -138,11 +138,11 @@ def created_movie(api_manager, test_movie):
 
 
 @pytest.fixture(scope="function")
-def delete_created_movie(api_manager, test_movie):
+def delete_created_movie(super_admin, test_movie):
     """
     Фикстура для создания фильма для метода delete
     """
-    response = api_manager.movies_api.send_request(
+    response = super_admin.api.movies_api.send_request(
         method="POST",
         endpoint=MOVIES_ENDPOINT,
         data=test_movie,
@@ -154,13 +154,13 @@ def delete_created_movie(api_manager, test_movie):
 
 
 @pytest.fixture(scope="function")
-def created_review(api_manager, created_movie, test_review):
+def created_review(super_admin, created_movie, test_review):
     """
     Фикстура для создания отзыва к фильму
     """
     movie_id = created_movie["id"]
 
-    response = api_manager.movies_api.send_request(
+    response = super_admin.api.movies_api.send_request(
         method="POST",
         endpoint=f"{MOVIES_ENDPOINT}/{movie_id}/reviews",
         data=test_review,
@@ -171,7 +171,7 @@ def created_review(api_manager, created_movie, test_review):
     yield created_review
 
     # Очистка после теста
-    api_manager.movies_api.send_request(
+    super_admin.api.movies_api.send_request(
         method="DELETE",
         endpoint=f"{MOVIES_ENDPOINT}/{movie_id}/reviews",
         data=created_review,
@@ -180,13 +180,13 @@ def created_review(api_manager, created_movie, test_review):
 
 
 @pytest.fixture(scope="function")
-def delete_created_review(api_manager, created_movie, test_review):
+def delete_created_review(super_admin, created_movie, test_review):
     """
     Фикстура для создания отзыва к фильму для метода delete
     """
     movie_id = created_movie["id"]
 
-    response = api_manager.movies_api.send_request(
+    response = super_admin.api.movies_api.send_request(
         method="POST",
         endpoint=f"{MOVIES_ENDPOINT}/{movie_id}/reviews",
         data=test_review,
@@ -234,12 +234,12 @@ def params_movies():
     }
 
 
-@pytest.fixture(scope="session")
-def get_movies_created_date(api_manager, params_movies):
+@pytest.fixture(scope="function")
+def get_movies_created_date(common_user, params_movies):
     """
     Фикстура для получения даты создания фильмов.
     """
-    response = api_manager.movies_api.send_request(
+    response = common_user.api.movies_api.send_request(
         method="GET",
         endpoint=MOVIES_ENDPOINT,
         data=params_movies,
@@ -342,3 +342,19 @@ def common_user(user_session, super_admin, creation_user_data):
     super_admin.api.user_api.create_user(creation_user_data)
     common_user.api.auth_api.authenticate(common_user.creds)
     return common_user
+
+
+@pytest.fixture
+def admin_user(user_session, super_admin, creation_user_data):
+    new_session = user_session()
+
+    admin_user = User(
+        creation_user_data['email'],
+        creation_user_data['password'],
+        [Roles.ADMIN.value],
+        new_session
+    )
+
+    super_admin.api.user_api.create_user(creation_user_data)
+    admin_user.api.auth_api.authenticate(admin_user.creds)
+    return admin_user

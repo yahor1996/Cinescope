@@ -1,9 +1,13 @@
 from Cinescope.conftest import creation_user_data
+from Cinescope.constants.roles import Roles
 
 
 class TestUser:
 
     def test_create_user(self, super_admin, creation_user_data):
+        """
+        Создание пользователя с правами супер админа
+        """
         response = super_admin.api.user_api.create_user(creation_user_data).json()
 
         assert response.get('id') and response['id'] != '', "ID должен быть не пустым"
@@ -24,6 +28,7 @@ class TestUser:
         assert response_by_id.get('fullName') == creation_user_data['fullName']
         assert response_by_id.get('roles', []) == creation_user_data['roles']
         assert response_by_id.get('verified') is True
+
 
     def test_get_user_by_id_common_user(self, common_user):
         common_user.api.user_api.get_user(common_user.email, expected_status=403)
