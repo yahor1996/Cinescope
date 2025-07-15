@@ -1,5 +1,6 @@
+import pytest
 from Cinescope.api.clients.api_manager import ApiManager
-
+from Cinescope.resources.user_creds import SuperAdminCreds
 
 class TestAuthAPI:
     def test_register_user(self, api_manager: ApiManager, test_user):
@@ -31,3 +32,17 @@ class TestAuthAPI:
         # Проверки
         assert "accessToken" in response_data, "Токен доступа отсутствует в ответе"
         assert response_data["user"]["email"] == registered_user["email"], "Email не совпадает"
+
+
+
+    @pytest.mark.parametrize("email, password, expected_status", [
+        (f"{SuperAdminCreds.USERNAME}", f"{SuperAdminCreds.PASSWORD}", 200),
+        ("test_login1@email.com", "asdqwe123Q!", 401),  # Сервис не может обработать логин по незареганному юзеру
+        ("", "password", 401),
+    ], ids=["Admin login", "Invalid user", "Empty username"])
+    def test_login(self, email, password, expected_status, api_manager):
+        login_data = {
+            "email": email,
+            "password": password
+        }
+        api_manager.auth_api.login_user(login_data=login_data, expected_status=expected_status)
