@@ -1,4 +1,6 @@
-from Cinescope.conftest import common_user
+import pytest
+from Cinescope.conftest import common_user, params_movies, api_manager
+from urllib.parse import urlencode
 
 
 class TestMoviesAPI:
@@ -45,6 +47,26 @@ class TestMoviesAPI:
         Тест на проверку работы фильтров
         """
         assert get_movies_created_date == sorted(get_movies_created_date), "Даты не отфильтрованы asc"
+
+
+    @pytest.mark.parametrize("price,locations,genre_id", [(range(1, 1001), "SPB", 1)])
+    def test_get_movies_params(self, price, locations, genre_id, api_manager):
+        """
+        Тест на проверку параметризованных фильтров
+        """
+
+        # Определение параметров в виде словаря
+        params = {
+            'minPrice': min(price),
+            'maxPrice': max(price),
+            'locations': locations,
+            'genreId': genre_id
+        }
+
+        # Формирование строки запроса
+        params_movies = f'?{urlencode(params)}'
+
+        api_manager.movies_api.get_movies(params_movies)
 
 
     def test_delete_movie(self, super_admin, common_user, delete_created_movie):
@@ -128,8 +150,7 @@ class TestReviewsAPI:
             "userId": delete_created_review["userId"]
         }
 
-        response = super_admin.api.movies_api.delete_movie_review(params_review)
-        response_data = response.json()
+        super_admin.api.movies_api.delete_movie_review(params_review)
 
         # Проверка, что отзыв действительно удалился
         response = common_user.api.movies_api.get_reviews(params_review["movieId"])
@@ -213,13 +234,13 @@ class TestNegativeMoviesAPI:
         """
         Негативный тест на получение афиш фильмов
         """
-        params_movies = str(params_movies)
+        params_movies = "test"
 
-        response = common_user.api.movies_api.get_movies(params_movies, expected_status=400)
+        response = common_user.api.movies_api.get_movies(params_movies, expected_status=404)
         response_data = response.json()
 
         # Проверки
-        assert "error" in response_data, "Отсутствие error Bad Request в ответе"
+        assert "error" in response_data, "Отсутствие error Not Found в ответе"
         assert "message" in response_data, "Сообщение об ошибке отсутствует в ответе"
 
 

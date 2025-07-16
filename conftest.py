@@ -10,6 +10,7 @@ from Cinescope.resources.user_creds import SuperAdminCreds
 from Cinescope.entities.user import User
 from custom_requester.custom_requester import CustomRequester
 from utils.data_generator import DataGenerator
+from urllib.parse import urlencode
 
 
 faker = Faker()
@@ -223,15 +224,22 @@ def params_movies():
     random_min_price = DataGenerator.generate_random_min_price()
     random_max_price = DataGenerator.generate_random_max_price()
 
-    return {
-        "pageSize" : random_page_size,
-        "page" : random_page,
-        "minPrice" : random_min_price,
-        "maxPrice" : random_max_price,
-        "locations" : "MSK,SPB",
-        "published" : True,
-        "createdAt" : "asc"
+    # Определение параметров
+    params = {
+        'pageSize': random_page_size,
+        'page': random_page,
+        'minPrice': random_min_price,
+        'maxPrice': random_max_price,
+        'locations': 'MSK,SPB',
+        'published': 'true',
+        'createdAt': 'asc'
     }
+
+    # Формирование строки запроса
+    query_string = urlencode(params)
+
+    # Возвращение строки с вопросительным знаком
+    return f'?{query_string}'
 
 
 @pytest.fixture(scope="function")
@@ -241,8 +249,7 @@ def get_movies_created_date(common_user, params_movies):
     """
     response = common_user.api.movies_api.send_request(
         method="GET",
-        endpoint=MOVIES_ENDPOINT,
-        data=params_movies,
+        endpoint=f"{MOVIES_ENDPOINT}{params_movies}",
         expected_status=200
     )
 
