@@ -1,6 +1,7 @@
 import pytest
-from Cinescope.conftest import common_user, params_movies, api_manager
+from Cinescope.conftest import common_user, params_movies, api_manager, super_admin
 from urllib.parse import urlencode
+from Cinescope.resources.user_creds import SuperAdminCreds
 
 
 class TestMoviesAPI:
@@ -65,7 +66,6 @@ class TestMoviesAPI:
 
         # Формирование строки запроса
         params_movies = f'?{urlencode(params)}'
-
         api_manager.movies_api.get_movies(params_movies)
 
 
@@ -87,6 +87,20 @@ class TestMoviesAPI:
         response_data = response.json()
 
         assert "message" in response_data, "Отсутствует сообщение в ответе"
+
+
+    @pytest.mark.parametrize("user_factory,expected_status", [
+        ("super_admin", 200),
+        ("common_user", 403),
+        ("admin_user", 200)
+    ])
+    def test_delete_movie_params(self, user_factory, expected_status, delete_created_movie, request):
+        """
+        Тест на проверку удаления фильма под разными ролями
+        """
+        user = request.getfixturevalue(user_factory)
+        movie_id = delete_created_movie["id"]
+        user.api.movies_api.delete_movie(movie_id, expected_status=expected_status)
 
 
     def test_edit_movie(self, super_admin, created_movie, edited_movie):

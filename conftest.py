@@ -354,14 +354,26 @@ def common_user(user_session, super_admin, creation_user_data):
 @pytest.fixture
 def admin_user(user_session, super_admin, creation_user_data):
     new_session = user_session()
+    admin_data = creation_user_data.copy()
+    admin_data['roles'] = [Roles.ADMIN.value]
 
     admin_user = User(
-        creation_user_data['email'],
-        creation_user_data['password'],
-        [Roles.ADMIN.value],
+        admin_data['email'],
+        admin_data['password'],
+        admin_data['roles'],
         new_session
     )
 
-    super_admin.api.user_api.create_user(creation_user_data)
+    response = super_admin.api.user_api.create_user(admin_data)
+    created_admin = response.json()
+
+    data = {
+        "roles": ["ADMIN"],
+        "verified": True,
+        "banned": False
+    }
+
+    super_admin.api.user_api.update_user(created_admin['id'], data)
     admin_user.api.auth_api.authenticate(admin_user.creds)
+
     return admin_user

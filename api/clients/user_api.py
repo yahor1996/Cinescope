@@ -25,6 +25,13 @@ class UserAPI(CustomRequester):
             expected_status=expected_status
         )
 
+    def update_user(self, user_locator, user_data, expected_status=200):
+        return self.send_request(
+            method="PATCH",
+            endpoint=f"user/{user_locator}",
+            data=user_data,
+            expected_status=expected_status
+        )
 
 
 """
