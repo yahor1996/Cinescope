@@ -296,6 +296,9 @@ def api_manager(session):
 
 @pytest.fixture
 def user_session():
+    """
+    Фикстура для создания сессии пользователя.
+    """
     user_pool = []
 
     def _create_user_session():
@@ -312,6 +315,9 @@ def user_session():
 
 @pytest.fixture
 def super_admin(user_session):
+    """
+    Фикстура для создания пользователя с правами супер админа.
+    """
     new_session = user_session()
 
     super_admin = User(
@@ -327,6 +333,9 @@ def super_admin(user_session):
 
 @pytest.fixture(scope="function")
 def creation_user_data(test_user):
+    """
+    Фикстура для создания пользователя.
+    """
     updated_data = test_user.copy()
     updated_data.update({
         "verified": True,
@@ -337,6 +346,9 @@ def creation_user_data(test_user):
 
 @pytest.fixture
 def common_user(user_session, super_admin, creation_user_data):
+    """
+    Фикстура для создания пользователя с обычными правами.
+    """
     new_session = user_session()
 
     common_user = User(
@@ -353,6 +365,9 @@ def common_user(user_session, super_admin, creation_user_data):
 
 @pytest.fixture
 def admin_user(user_session, super_admin, creation_user_data):
+    """
+    Фикстура для создания пользователя с правами админа.
+    """
     new_session = user_session()
     admin_data = creation_user_data.copy()
     admin_data['roles'] = [Roles.ADMIN.value]
