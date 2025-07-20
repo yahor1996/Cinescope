@@ -1,5 +1,5 @@
-from Cinescope.conftest import creation_user_data
-from Cinescope.constants.roles import Roles
+from Cinescope.conftest.conftest import creation_user_data
+from Cinescope.conftest.conftest import *
 
 
 class TestUser:

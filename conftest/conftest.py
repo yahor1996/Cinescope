@@ -8,8 +8,8 @@ from Cinescope.constants.constants import BASE_URL, REGISTER_ENDPOINT, USER_CRED
 from Cinescope.constants.roles import Roles
 from Cinescope.resources.user_creds import SuperAdminCreds
 from Cinescope.entities.user import User
-from custom_requester.custom_requester import CustomRequester
-from utils.data_generator import DataGenerator
+from Cinescope.custom_requester.custom_requester import CustomRequester
+from Cinescope.utils.data_generator import DataGenerator
 from urllib.parse import urlencode
 
 

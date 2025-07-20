@@ -1,5 +1,4 @@
-import pytest
-from Cinescope.api.clients.api_manager import ApiManager
+from Cinescope.conftest.conftest import *
 from Cinescope.resources.user_creds import SuperAdminCreds
 
 class TestAuthAPI:
