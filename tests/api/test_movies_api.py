@@ -16,6 +16,7 @@ class TestMoviesAPI:
         assert response_data["description"] == test_movie["description"], "Описание фильма не совпадает"
 
 
+    @pytest.mark.slow
     def test_get_movie(self, common_user, created_movie):
         """
         Тест на получение фильма по id
@@ -42,6 +43,7 @@ class TestMoviesAPI:
         assert "page" in response_data, "Атрибут страницы отсутствует в ответе"
 
 
+    @pytest.mark.slow
     def test_get_movies_filter(self, get_movies_created_date):
         """
         Тест на проверку работы фильтров
@@ -68,6 +70,7 @@ class TestMoviesAPI:
         api_manager.movies_api.get_movies(params_movies)
 
 
+    @pytest.mark.slow
     def test_delete_movie(self, super_admin, common_user, delete_created_movie):
         """
         Тест на удаление фильма по id
@@ -129,6 +132,7 @@ class TestReviewsAPI:
         assert "text" in response_data, "Отзыв о фильме отсутствует в ответе"
 
 
+    @pytest.mark.slow
     def test_get_reviews(self, common_user, created_movie, created_review):
         """
         Тест на получение отзывов фильма
@@ -187,6 +191,7 @@ class TestReviewsAPI:
         assert response_data["hidden"] == True, "Признак скрытия - False"
 
 
+    @pytest.mark.slow
     def test_show_review(self, super_admin, created_movie, hidden_review):
         """
         Тест на показ отзыва
