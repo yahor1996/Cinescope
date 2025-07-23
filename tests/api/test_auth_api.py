@@ -2,15 +2,15 @@ from Cinescope.conftest.conftest import *
 from Cinescope.resources.user_creds import SuperAdminCreds
 
 class TestAuthAPI:
-    def test_register_user(self, api_manager: ApiManager, test_user):
+    def test_register_user(self, api_manager: ApiManager, registration_user_data):
         """
         Тест на регистрацию пользователя.
         """
-        response = api_manager.auth_api.register_user(test_user)
+        response = api_manager.auth_api.register_user(registration_user_data)
         response_data = response.json()
 
         # Проверки
-        assert response_data["email"] == test_user["email"], "Email не совпадает"
+        assert response_data["email"] == registration_user_data["email"], "Email не совпадает"
         assert "id" in response_data, "ID пользователя отсутствует в ответе"
         assert "roles" in response_data, "Роли пользователя отсутствуют в ответе"
         assert "USER" in response_data["roles"], "Роль USER должна быть у пользователя"
