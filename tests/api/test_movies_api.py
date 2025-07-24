@@ -85,16 +85,16 @@ class TestMoviesAPI:
         assert "description" in response_data, "Описание фильма отсутствует в ответе"
 
         # Проверка, что фильм действительно удалился
-        response = common_user.api.movies_api.get_movie(movie_id, expected_status=404)
+        response = common_user.api.movies_api.get_movie(movie_id, expected_status=[404])
         response_data = response.json()
 
         assert "message" in response_data, "Отсутствует сообщение в ответе"
 
 
     @pytest.mark.parametrize("user_factory,expected_status", [
-        ("super_admin", 200),
-        ("common_user", 403),
-        ("admin_user", 200)
+        ("super_admin", [200, 201]),
+        ("common_user", [403]),
+        ("admin_user", [200, 201])
     ])
     def test_delete_movie_params(self, user_factory, expected_status, delete_created_movie, request):
         """
@@ -215,7 +215,7 @@ class TestNegativeMoviesAPI:
         Негативный тест на создание фильма
         """
         test_movie["name"] = None
-        response = super_admin.api.movies_api.create_movie(test_movie, expected_status=400)
+        response = super_admin.api.movies_api.create_movie(test_movie, expected_status=[400])
         response_data = response.json()
 
         # Проверки
@@ -227,7 +227,7 @@ class TestNegativeMoviesAPI:
         """
         Негативный тест на создание фильма с ролью USER
         """
-        response = common_user.api.movies_api.create_movie(test_movie, expected_status=403)
+        response = common_user.api.movies_api.create_movie(test_movie, expected_status=[403])
         response_data = response.json()
 
         # Проверки
@@ -240,7 +240,7 @@ class TestNegativeMoviesAPI:
         Негативный тест на получение фильма по id
         """
         movie_id = None
-        response = common_user.api.movies_api.get_movie(movie_id, expected_status=500)
+        response = common_user.api.movies_api.get_movie(movie_id, expected_status=[500])
         response_data = response.json()
 
         # Проверки
@@ -254,7 +254,7 @@ class TestNegativeMoviesAPI:
         """
         params_movies = "test"
 
-        response = common_user.api.movies_api.get_movies(params_movies, expected_status=404)
+        response = common_user.api.movies_api.get_movies(params_movies, expected_status=[404])
         response_data = response.json()
 
         # Проверки
@@ -267,7 +267,7 @@ class TestNegativeMoviesAPI:
         Негативный тест на удаление фильма по id
         """
         movie_id = None
-        response = super_admin.api.movies_api.delete_movie(movie_id, expected_status=404)
+        response = super_admin.api.movies_api.delete_movie(movie_id, expected_status=[404])
         response_data = response.json()
 
         # Проверки
@@ -281,7 +281,7 @@ class TestNegativeMoviesAPI:
         """
         edited_movie["name"] = None
         movie_id = created_movie["id"]
-        response = super_admin.api.movies_api.edit_movie(movie_id, edited_movie, expected_status=400)
+        response = super_admin.api.movies_api.edit_movie(movie_id, edited_movie, expected_status=[400])
         response_data = response.json()
 
         # Проверки

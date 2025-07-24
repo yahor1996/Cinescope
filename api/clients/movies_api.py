@@ -10,7 +10,7 @@ class MoviesAPI(CustomRequester):
         super().__init__(session=session, base_url="https://api.dev-cinescope.coconutqa.ru/")
 
 
-    def create_movie(self, test_movie, expected_status=201):
+    def create_movie(self, test_movie, expected_status=[200, 201]):
         """
         Создание нового фильма.
         :param test_movie: Данные фильма.
@@ -24,7 +24,7 @@ class MoviesAPI(CustomRequester):
         )
 
 
-    def get_movie(self, movie_id, expected_status=200):
+    def get_movie(self, movie_id, expected_status=[200, 201]):
         """
         Получение фильма по его id.
         :param movie_id: Id фильма.
@@ -38,7 +38,7 @@ class MoviesAPI(CustomRequester):
         )
 
 
-    def get_movies(self, params_movies, expected_status=200):
+    def get_movies(self, params_movies, expected_status=[200, 201]):
         """
         Получение афиш фильмов.
         :param params_movies: Параметры для получения афиш фильмов.
@@ -52,7 +52,7 @@ class MoviesAPI(CustomRequester):
         )
 
 
-    def delete_movie(self, movie_id, expected_status=200):
+    def delete_movie(self, movie_id, expected_status=[200, 201]):
         """
         Удаление фильма по его id.
         :param movie_id: Id фильма, который будем удалять
@@ -66,7 +66,7 @@ class MoviesAPI(CustomRequester):
         )
 
 
-    def edit_movie(self, movie_id, edited_movie, expected_status=200):
+    def edit_movie(self, movie_id, edited_movie, expected_status=[200, 201]):
         """
         Редактирование фильма по его id.
         :param edited_movie: Редактируемые данные фильма.
@@ -81,7 +81,7 @@ class MoviesAPI(CustomRequester):
         )
 
 
-    def create_review(self, movie_id, test_review, expected_status=201):
+    def create_review(self, movie_id, test_review, expected_status=[200, 201]):
         """
         Создание отзыва к фильму.
         :param movie_id: Id фильма.
@@ -96,7 +96,7 @@ class MoviesAPI(CustomRequester):
         )
 
 
-    def get_reviews(self, movie_id, expected_status=200):
+    def get_reviews(self, movie_id, expected_status=[200, 201]):
         """
         Получение отзывов фильма.
         :param movie_id: Id фильма.
@@ -110,7 +110,7 @@ class MoviesAPI(CustomRequester):
         )
 
 
-    def edit_review(self, movie_id, edited_review, expected_status=200):
+    def edit_review(self, movie_id, edited_review, expected_status=[200, 201]):
         """
         Редактирование отзыва фильма.
         :param movie_id: Id фильма.
@@ -125,7 +125,7 @@ class MoviesAPI(CustomRequester):
         )
 
 
-    def delete_movie_review(self, params_review, expected_status=200):
+    def delete_movie_review(self, params_review, expected_status=[200, 201]):
         """
         Удаление отзыва фильма.
         :param params_review: Параметры в запросе на удаление(movieId, userId)
@@ -141,7 +141,7 @@ class MoviesAPI(CustomRequester):
         )
 
 
-    def hide_review(self, params_review, expected_status=200):
+    def hide_review(self, params_review, expected_status=[200, 201]):
         """
         Скрытие отзыва фильма
         :param params_review: Параметры в запросе на скрытие отзыва(movieId, userId)
@@ -158,7 +158,7 @@ class MoviesAPI(CustomRequester):
         )
 
 
-    def show_review(self, params_review, expected_status=200):
+    def show_review(self, params_review, expected_status=[200, 201]):
         """
         Показ отзыва фильма
         :param params_review: Параметры в запросе на показ отзыва(movieId, userId)

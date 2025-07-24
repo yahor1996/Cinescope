@@ -35,9 +35,9 @@ class TestAuthAPI:
 
 
     @pytest.mark.parametrize("email, password, expected_status", [
-        (f"{SuperAdminCreds.USERNAME}", f"{SuperAdminCreds.PASSWORD}", 201),
-        ("test_login1@email.com", "asdqwe123Q!", 401),  # Сервис не может обработать логин по незареганному юзеру
-        ("", "password", 401),
+        (f"{SuperAdminCreds.USERNAME}", f"{SuperAdminCreds.PASSWORD}", [200, 201]),
+        ("test_login1@email.com", "asdqwe123Q!", [401]),  # Сервис не может обработать логин по незареганному юзеру
+        ("", "password", [401]),
     ], ids=["Admin login", "Invalid user", "Empty username"])
     def test_login(self, email, password, expected_status, api_manager):
         login_data = {

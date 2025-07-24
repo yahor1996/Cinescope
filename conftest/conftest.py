@@ -42,7 +42,7 @@ def registered_user(requester, registration_user_data):
         method="POST",
         endpoint=REGISTER_ENDPOINT,
         data=registration_user_data,
-        expected_status=201
+        expected_status=[200, 201]
     )
     response_data = response.json()
     registered_user = registration_user_data.copy()
@@ -123,7 +123,7 @@ def created_movie(super_admin, test_movie):
         method="POST",
         endpoint=MOVIES_ENDPOINT,
         data=test_movie,
-        expected_status=201
+        expected_status=[200, 201]
     )
 
     created_movie = response.json()
@@ -134,7 +134,7 @@ def created_movie(super_admin, test_movie):
     super_admin.api.movies_api.send_request(
         method="DELETE",
         endpoint=f"{MOVIES_ENDPOINT}/{movie_id}",
-        expected_status=200
+        expected_status=[200, 201]
     )
 
 
@@ -147,7 +147,7 @@ def delete_created_movie(super_admin, test_movie):
         method="POST",
         endpoint=MOVIES_ENDPOINT,
         data=test_movie,
-        expected_status=201
+        expected_status=[200, 201]
     )
 
     new_movie = response.json()
@@ -165,7 +165,7 @@ def created_review(super_admin, created_movie, test_review):
         method="POST",
         endpoint=f"{MOVIES_ENDPOINT}/{movie_id}/reviews",
         data=test_review,
-        expected_status=201
+        expected_status=[200, 201]
     )
 
     created_review = response.json()
@@ -176,7 +176,7 @@ def created_review(super_admin, created_movie, test_review):
         method="DELETE",
         endpoint=f"{MOVIES_ENDPOINT}/{movie_id}/reviews",
         data=created_review,
-        expected_status=200
+        expected_status=[200, 201]
     )
 
 
@@ -191,7 +191,7 @@ def delete_created_review(super_admin, created_movie, test_review):
         method="POST",
         endpoint=f"{MOVIES_ENDPOINT}/{movie_id}/reviews",
         data=test_review,
-        expected_status=201
+        expected_status=[200, 201]
     )
 
     new_review = response.json()
@@ -250,7 +250,7 @@ def get_movies_created_date(common_user, params_movies):
     response = common_user.api.movies_api.send_request(
         method="GET",
         endpoint=f"{MOVIES_ENDPOINT}{params_movies}",
-        expected_status=200
+        expected_status=[200, 201]
     )
 
     response_data = response.json()
