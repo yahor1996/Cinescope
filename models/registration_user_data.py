@@ -1,19 +1,26 @@
 import pytest
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator, ValidationError
 from Cinescope.constants.roles import Roles
 from Cinescope.utils.data_generator import DataGenerator
 from venv import logger
 
 
 class UserData(BaseModel):
-    email: str
-    fullName: str
-    password: str
-    passwordRepeat: str
+    email: str = Field(..., min_length=21, max_length=21, description="Электронная почта")
+    fullName: str = Field(..., description="Полное имя")
+    password: str = Field(..., min_length=8, max_length=20, description="Пароль")
+    passwordRepeat: str = Field(..., min_length=8, max_length=20)
     roles: list[Roles]
     banned: Optional[bool] = None
     verified: Optional[bool] = None
+
+    @field_validator("email") # Кастомный валидатор для проверки символа '@' в email
+    def check_email(cls, value: str) -> str:
+        # Проверяем что почта содержит символ "@"
+        if '@' not in value:
+            raise ValueError("email must contains '@'")
+        return value
 
 
 @pytest.fixture(scope="function")
