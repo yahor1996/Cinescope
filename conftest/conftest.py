@@ -16,7 +16,7 @@ from urllib.parse import urlencode
 faker = Faker()
 
 @pytest.fixture(scope="function")
-def registration_user_data():
+def test_user():
     """
     Генерация случайного пользователя для тестов.
     """
@@ -34,18 +34,18 @@ def registration_user_data():
 
 
 @pytest.fixture(scope="function")
-def registered_user(requester, registration_user_data):
+def registered_user(requester, test_user):
     """
     Фикстура для регистрации и получения данных зарегистрированного пользователя.
     """
     response = requester.send_request(
         method="POST",
         endpoint=REGISTER_ENDPOINT,
-        data=registration_user_data,
+        data=test_user,
         expected_status=[200, 201]
     )
     response_data = response.json()
-    registered_user = registration_user_data.copy()
+    registered_user = test_user.copy()
     registered_user["id"] = response_data["id"]
     return registered_user
 
@@ -332,11 +332,11 @@ def super_admin(user_session):
 
 
 @pytest.fixture(scope="function")
-def creation_user_data(registration_user_data):
+def creation_user_data(test_user):
     """
     Фикстура для создания пользователя.
     """
-    updated_data = registration_user_data.copy()
+    updated_data = test_user.copy()
     updated_data.update({
         "verified": True,
         "banned": False
