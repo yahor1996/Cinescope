@@ -22,18 +22,12 @@ class TestUser(BaseModel):
             raise ValueError("Пароли не совпадают")
         return value
 
-    """ 
-    Чет падение на валидации лямбда, сделал метод на преобразование строки role_to_json()
-    # Добавляем кастомный JSON-сериализатор для Enum
-    class Config:
-        json_encoders = {
-            Roles: lambda v: v.value  # Преобразуем Enum в строку
-        }
-    """
 
     def convert_roles(roles: List[str]) -> List[Roles]:
         return [Roles(role) for role in roles]
 
+
+    # Добавляем кастомный JSON-сериализатор для Enum
     class Config:
         json_encoders = {
             Roles: lambda v: v.value  # Преобразуем Enum в строку
@@ -58,10 +52,13 @@ class RegisterUserResponse(BaseModel):
             raise ValueError("Некорректный формат даты и времени. Ожидается формат ISO 8601.")
         return value
 
+
+    # Добавляем кастомный JSON-сериализатор для Enum
     class Config:
         json_encoders = {
             Roles: lambda v: v.value  # Преобразуем Enum в строку
         }
+
 
     def convert_roles(roles: List[str]) -> List[Roles]:
         return [Roles(role) for role in roles]
