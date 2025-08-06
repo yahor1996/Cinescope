@@ -31,8 +31,13 @@ class TestUser(BaseModel):
         }
     """
 
-    def role_to_json(self) -> str:
-        return self.roles.value
+    def convert_roles(roles: List[str]) -> List[Roles]:
+        return [Roles(role) for role in roles]
+
+    class Config:
+        json_encoders = {
+            Roles: lambda v: v.value  # Преобразуем Enum в строку
+        }
 
 
 class RegisterUserResponse(BaseModel):
@@ -53,3 +58,10 @@ class RegisterUserResponse(BaseModel):
             raise ValueError("Некорректный формат даты и времени. Ожидается формат ISO 8601.")
         return value
 
+    class Config:
+        json_encoders = {
+            Roles: lambda v: v.value  # Преобразуем Enum в строку
+        }
+
+    def convert_roles(roles: List[str]) -> List[Roles]:
+        return [Roles(role) for role in roles]

@@ -30,7 +30,7 @@ def test_user() -> TestUser:
          fullName=random_name,
          password=random_password,
          passwordRepeat=random_password,
-         roles=[Roles.USER.value]
+         roles=[Roles.USER]
     )
 
 
@@ -365,7 +365,7 @@ def admin_user(user_session, super_admin, creation_user_data):
     Фикстура для создания пользователя с правами админа.
     """
     new_session = user_session()
-    admin_data = creation_user_data.model_copy(update={"roles": [Roles.ADMIN.value]})
+    admin_data = creation_user_data.model_copy(update={"roles": [Roles.ADMIN]})
 
     admin_user = User(
         admin_data.email,
@@ -378,7 +378,7 @@ def admin_user(user_session, super_admin, creation_user_data):
     created_admin = response.json()
 
     data = {
-        "roles": ["ADMIN"],
+        "roles": [Roles.ADMIN.value],
         "verified": True,
         "banned": False
     }
