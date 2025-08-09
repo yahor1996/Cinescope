@@ -12,6 +12,8 @@ from Cinescope.entities.user import User
 from Cinescope.custom_requester.custom_requester import CustomRequester
 from Cinescope.utils.data_generator import DataGenerator
 from urllib.parse import urlencode
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 
 faker = Faker()
@@ -387,3 +389,27 @@ def admin_user(user_session, super_admin, creation_user_data):
     admin_user.api.auth_api.authenticate(admin_user.creds)
 
     return admin_user
+
+
+#Оставим эти данные тут для наглядности. но не стоит хранить креды в гитлабе. они должны быть заданы через env
+HOST = "80.90.191.123"
+PORT = 31200
+DATABASE_NAME = "db_movies"
+USERNAME = "postgres"
+PASSWORD = "AmwFrtnR2"
+
+engine = create_engine(f"postgresql+psycopg2://{USERNAME}:{PASSWORD}@{HOST}:{PORT}/{DATABASE_NAME}") # Создаем движок (engine) для подключения к базе данных
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine) # Создаем фабрику сессий
+
+@pytest.fixture(scope="module")
+def db_session():
+    """
+    Фикстура, которая создает и возвращает сессию для работы с базой данных.
+    После завершения теста сессия автоматически закрывается.
+    """
+    # Создаем новую сессию
+    db_session = SessionLocal()
+    # Возвращаем сессию в тест
+    yield db_session
+    # Закрываем сессию после завершения теста
+    db_session.close()

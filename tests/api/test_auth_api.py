@@ -1,4 +1,7 @@
+from sqlalchemy.orm import sessionmaker, Session
+
 from Cinescope.conftest.conftest import *
+from Cinescope.db_requester.models import UserDBModel
 from Cinescope.resources.user_creds import SuperAdminCreds
 from Cinescope.models.base_models import RegisterUserResponse
 from Cinescope.models.registration_and_login_model import RegisterAndLoginUserResponse
@@ -52,3 +55,22 @@ class TestAuthAPI:
             "password": password
         }
         api_manager.auth_api.login_user(login_data=login_data, expected_status=expected_status)
+
+
+    def test_register_user_db_session(self, api_manager: ApiManager, test_user: TestUser, db_session: Session):
+        """
+        Тест на регистрацию пользователя с проверкой в базе данных.
+        """
+        # выполняем запрос на регистрацию нового пользователя
+        response = api_manager.auth_api.register_user(test_user)
+        register_user_response = RegisterUserResponse(**response.json())
+
+        # Проверяем добавил ли сервис Auth нового пользователя в базу данных
+        users_from_db = db_session.query(UserDBModel).filter(UserDBModel.id == register_user_response.id)
+
+        # Получили объект из базы данных и проверили что он действительно существует в единственном экземпляре
+        assert users_from_db.count() == 1, "объект не попал в базу данных"
+        # Достаем первый и единственный объект из списка полученных
+        user_from_db = users_from_db.first()
+        # Можем осуществить проверку всех полей в базе данных например Email
+        assert user_from_db.email == test_user.email, "Email не совпадает"
