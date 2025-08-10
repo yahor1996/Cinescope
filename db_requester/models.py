@@ -1,6 +1,6 @@
 import pytest
 from datetime import datetime
-from sqlalchemy import create_engine, Column, String, Boolean, DateTime, text
+from sqlalchemy import create_engine, Column, String, Boolean, DateTime, Integer, ForeignKey, text
 from sqlalchemy.orm import declarative_base, sessionmaker
 from Cinescope.conftest.conftest import SessionLocal
 from Cinescope.utils.data_generator import DataGenerator
@@ -52,3 +52,23 @@ def db_session():
     session.delete(test_user) # Удаляем тестовые данные
     session.commit() # сохраняем изменения для всех остальных подключений
     session.close() #завершем сессию (отключаемся от базы данных)
+
+
+
+class MovieDBModel(Base):
+    """
+    Модель для таблицы movies.
+    """
+    __tablename__ = 'movies'  # Имя таблицы в базе данных
+
+    # Поля таблицы
+    id = Column(String, primary_key=True)  # Уникальный идентификатор фильма
+    name = Column(String, nullable=False)  # Название фильма
+    description = Column(String)  # Описание фильма
+    price = Column(Integer, nullable=False)  # Цена фильма
+    genre_id = Column(String, ForeignKey('genres.id'), nullable=False)  # Ссылка на жанр
+    image_url = Column(String)  # Ссылка на изображение
+    location = Column(String)  # Локация фильма (например, "MSK")
+    rating = Column(Integer)  # Рейтинг фильма
+    published = Column(Boolean)  # Опубликован ли фильм
+    created_at = Column(DateTime)  # Дата создания записи
