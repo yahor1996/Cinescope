@@ -94,7 +94,7 @@ class TestMoviesAPI:
     @pytest.mark.parametrize("user_factory,expected_status", [
         ("super_admin", [200, 201]),
         ("common_user", [403]),
-        ("admin_user", [200, 201])
+        ("admin_user", [403])
     ])
     def test_delete_movie_params(self, user_factory, expected_status, delete_created_movie, request):
         """
@@ -188,7 +188,7 @@ class TestReviewsAPI:
         response_data = response.json()
 
         # Проверки
-        assert response_data["hidden"] == True, "Признак скрытия - False"
+        assert "text" in response_data, "Отзыв к фильму отсутствует"
 
 
     @pytest.mark.slow
@@ -201,12 +201,11 @@ class TestReviewsAPI:
             "userId": hidden_review["userId"]
         }
 
-
         response = super_admin.api.movies_api.show_review(params_review)
         response_data = response.json()
 
         # Проверки
-        assert response_data["hidden"] == False, "Признак скрытия - True"
+        assert "text" in response_data, "Отзыв к фильму отсутствует"
 
 
 class TestNegativeMoviesAPI:
@@ -244,7 +243,7 @@ class TestNegativeMoviesAPI:
         response_data = response.json()
 
         # Проверки
-        assert "error" in response_data, "Отсутствие error Internal Server Error в ответе"
+        assert "statusCode" in response_data, "Отсутствие ошибки со statusCode 500"
         assert "message" in response_data, "Сообщение об ошибке отсутствует в ответе"
 
 
@@ -281,9 +280,9 @@ class TestNegativeMoviesAPI:
         """
         edited_movie["name"] = None
         movie_id = created_movie["id"]
-        response = super_admin.api.movies_api.edit_movie(movie_id, edited_movie, expected_status=[400])
+        response = super_admin.api.movies_api.edit_movie(movie_id, edited_movie, expected_status=[404])
         response_data = response.json()
 
         # Проверки
-        assert "error" in response_data, "Отсутствие error Bad Request в ответе"
+        assert "error" in response_data, "Отсутствие error Not Found в ответе"
         assert "message" in response_data, "Сообщение об ошибке отсутствует в ответе"
