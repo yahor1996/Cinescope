@@ -17,12 +17,12 @@ class TestMoviesAPI:
 
 
     @pytest.mark.slow
-    def test_get_movie(self, common_user, created_movie):
+    def test_get_movie(self, super_admin, created_movie):
         """
         Тест на получение фильма по id
         """
         movie_id = created_movie["id"]
-        response = common_user.api.movies_api.get_movie(movie_id)
+        response = super_admin.api.movies_api.get_movie(movie_id)
         response_data = response.json()
 
         # Проверки
