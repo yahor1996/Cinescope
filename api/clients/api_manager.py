@@ -1,6 +1,6 @@
-from Cinescope.api.clients.auth_api import AuthAPI
-from Cinescope.api.clients.user_api import UserAPI
-from Cinescope.api.clients.movies_api import MoviesAPI
+from .auth_api import AuthAPI
+from .user_api import UserAPI
+from .movies_api import MoviesAPI
 
 class ApiManager:
     """

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import sessionmaker, Session
 
-from Cinescope.conftest.conftest import *
+from conftest.conftest import *
 from Cinescope.db_requester.models import UserDBModel
 from Cinescope.resources.user_creds import SuperAdminCreds
 from Cinescope.models.base_models import RegisterUserResponse

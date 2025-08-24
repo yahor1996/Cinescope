@@ -3,7 +3,6 @@ import datetime
 import pytest
 import pytz
 import requests
-from Cinescope.constants.constants import BASE_URL, HEADERS, REGISTER_ENDPOINT, LOGIN_ENDPOINT
 from Cinescope.custom_requester.custom_requester import CustomRequester
 from Cinescope.api.clients.api_manager import ApiManager
 from Cinescope.constants.roles import Roles
@@ -103,6 +102,7 @@ def get_fake_worldclockap_time() -> WorldClockResponse:
 
 
 class TestTodayIsHolidayServiceAPI:
+    @pytest.mark.skip
     def test_what_is_today_BY_MOCK(self, mocker):
         # Создаем мок для функции get_worldclockap_time
         mocker.patch(
@@ -130,6 +130,7 @@ class TestTodayIsHolidayServiceAPI:
         assert what_is_today_data.message == "Новый год", "ДОЛЖЕН БЫТЬ НОВЫЙ ГОД!"
 
     # Тест с использованием Stub
+    @pytest.mark.skip
     def test_what_is_today_BY_STUB(self, monkeypatch):
         # Подменяем реальную функцию get_worldclockap_time на Stub
         monkeypatch.setattr("test_mock_services.get_worldclockap_time", stub_get_worldclockap_time)

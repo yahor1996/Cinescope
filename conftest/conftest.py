@@ -2,8 +2,8 @@ from faker import Faker
 import pytest
 import requests
 
-from Cinescope.api.clients.api_manager import ApiManager
-from Cinescope.api.clients.auth_api import AuthAPI
+from api.clients.api_manager import ApiManager
+from api.clients.auth_api import AuthAPI
 from Cinescope.constants.constants import BASE_URL, REGISTER_ENDPOINT, USER_CREDS, HEADERS, MOVIES_ENDPOINT
 from Cinescope.constants.roles import Roles
 from Cinescope.models.base_models import TestUser

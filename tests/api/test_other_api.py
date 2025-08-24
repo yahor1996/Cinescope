@@ -1,9 +1,10 @@
 import allure
-from Cinescope.conftest.conftest import *
+import pytest
+from conftest.conftest import *
 from datetime import datetime, timedelta
 from pytz import timezone
-from Cinescope.db_requester.models import MovieDBModel, AccountTransactionTemplate
-from Cinescope.utils.data_generator import DataGenerator
+from db_requester.models import MovieDBModel, AccountTransactionTemplate
+from utils.data_generator import DataGenerator
 from sqlalchemy.orm import Session
 
 class TestMoviesDB:

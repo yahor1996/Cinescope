@@ -1,5 +1,4 @@
-from Cinescope.conftest.conftest import common_user, params_movies, api_manager, super_admin
-from Cinescope.conftest.conftest import *
+from conftest.conftest import *
 from urllib.parse import urlencode
 
 
