@@ -1,3 +1,5 @@
+import time
+
 from faker import Faker
 import pytest
 import requests
@@ -413,3 +415,9 @@ def db_session():
     yield db_session
     # Закрываем сессию после завершения теста
     db_session.close()
+
+
+@pytest.fixture
+def delay_between_retries():
+    time.sleep(2)  # Задержка в 2 секунды\ это не обязательно но
+    yield          # нужно понимать что такая возможность имеется
