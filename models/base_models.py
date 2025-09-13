@@ -39,7 +39,7 @@ class RegisterUserResponse(BaseModel):
     email: str = Field(pattern=r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", description="Email пользователя")
     fullName: str = Field(min_length=1, max_length=100, description="Полное имя пользователя")
     verified: bool
-    banned: bool
+    banned: Optional[bool] = None
     roles: List[Roles]
     createdAt: str = Field(description="Дата и время создания пользователя в формате ISO 8601")
 
