@@ -1,30 +1,34 @@
-from playwright.sync_api import Page, expect
-import random
-import string
-from faker import Faker
 import time
+from playwright.sync_api import sync_playwright
 
-faker = Faker()
+from Cinescope.models.page_object_models import CinescopRegisterPage
+from Cinescope.utils.data_generator import DataGenerator
 
-def test_registration(page: Page):
-    page.goto('https://dev-cinescope.coconutqa.ru/register')
+def test_register_by_ui():
+    with sync_playwright() as playwright:
+        random_email = DataGenerator.generate_random_email()
+        random_name = DataGenerator.generate_random_name()
+        random_password = DataGenerator.generate_random_password()
 
-    username_locator = 'input[name="fullName"]'
-    email_locator = 'input[name="email"]'
-    password_locator = 'input[name="password"]'
-    repeat_password_locator = 'input[name="passwordRepeat"]'
-    register_button_locator = '//button[text()="Зарегистрироваться"]'
+        # Запуск браузера
+        browser = playwright.chromium.launch(headless=False)  # headless=False для визуального отображения
+        page = browser.new_page()
 
-    random_string = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
-    user_email = f"tst{random_string}@gmail.com"
+        # Создаем объект страницы регистрации cinescope
+        register_page = CinescopRegisterPage(page)
 
-    page.fill(username_locator, 'Жмышенко Валерий Альбертович')
-    page.fill(email_locator, user_email)
-    page.fill(password_locator, 'qwerty123Q')
-    page.fill(repeat_password_locator, 'qwerty123Q')
-    page.locator(register_button_locator).click()
+        # Открываем страницу
+        register_page.open()
+        register_page.register(f"PlaywrightTest {random_name}", random_email, random_password, random_password)
 
-    page.wait_for_url('https://dev-cinescope.coconutqa.ru/login')
-    expect(page.get_by_text("Подтвердите свою почту")).to_be_visible(visible=True)
+        # Проверка редиректа на страницу /login
+        register_page.wait_redirect_to_login_page()
 
-    time.sleep(10)
+        # Проверка появления и исчезновения алерта
+        register_page.check_allert()
+
+        # Пауза для визуальной проверки (нужно удалить в реальном тестировании)
+        time.sleep(5)
+
+        # Закрываем браузер
+        browser.close()
